@@ -1,5 +1,5 @@
-# CrudcCrud-SRPD Q.18
-Get the saved User Details from crudcrud.
+# CrudcCrud-SRPD Q.19
+Deleting the Appointments.
 
 <!DOCTYPE html>
 <html lang="en">
@@ -20,10 +20,10 @@ Get the saved User Details from crudcrud.
     </form>
     <ul id="listofitems"></ul>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+    <script src ="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
     <script>
         let isEditing = false;
         let editEmail = '';
-     function saveToLocalStorage(event) {
         function saveToLocalStorage(event) {
             event.preventDefault();
             const name = event.target.username.value;
@@ -33,40 +33,38 @@ Get the saved User Details from crudcrud.
                 name: name,
                 email: email,
                 phonenumber: phonenumber,
+                phonenumber: phonenumber
             };
-        axios.post("https://crudcrud.com/api/a4090ec5b8c44a348f4ff888f40d2ca2/appoinmentData", userDetails)
         axios.post("https://crudcrud.com/api/d7de33604f044e04bf3cb809448353d2/appoinmentData", userDetails)
+            axios.post("https://crudcrud.com/api/727255c9705f493cb18ca23d90fbf838/appoinmentData", userDetails)
                 .then((response) => {
                     showUserOnScreen(response.Data)
-                        //console.log(response)
+                    showNewUserOnScreen(response.Data)
                         console.log(response)
                     })
                     .catch((err) => {
                         document.body.innerHTML = document.body.innerHTML + "<h4> something went wrong </h4>"
                         console.log(err)
                     })
-            if (isEditing) {
              if (isEditing) {
+            if (isEditing) {
                 updateUserData(email, userDetails);
                 isEditing = false;
                 editEmail = '';
             } else {
                 addUserData(userDetails);
             }
-          event.target.reset();
-        }
-      function addUserData(userDetails) {
             event.target.reset();
         } 
+        }
         function addUserData(userDetails) {
             const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
             storedUsers.push(userDetails);
             localStorage.setItem('users', JSON.stringify(storedUsers));
             localStorage.setItem(userDetails.email, JSON.stringify(userDetails));
             showUserOnScreen(userDetails);
-        }
-      function updateUserData(email, userDetails) {
         }        
+        }
         function updateUserData(email, userDetails) {
             const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
             const updatedUsers = storedUsers.map(user => {
@@ -75,9 +73,6 @@ Get the saved User Details from crudcrud.
                 }
                 return user;
             });
-            localStorage.setItem('users', JSON.stringify(updatedUsers));
-            localStorage.setItem(userDetails.email, JSON.stringify(userDetails));
-            updateUserOnUI(email, userDetails);
             // localStorage.setItem('users', JSON.stringify(updatedUsers));
             // localStorage.setItem(userDetails.email, JSON.stringify(userDetails));
             // updateUserOnUI(email, userDetails);
@@ -87,56 +82,72 @@ Get the saved User Details from crudcrud.
             const listItem = document.createElement('li');
             listItem.setAttribute('data-email', user.email);
             listItem.textContent = user.name + ' - ' + user.email + ' - ' + user.phonenumber;
+            listItem.setAttribute('data-email', user._id);
+            listItem.textContent = user.name + ' - ' + user._id + ' - ' + user.phonenumber;
             const deleteButton = document.createElement('button');
             deleteButton.textContent = 'Delete';
             deleteButton.addEventListener('click', function() {
                 deleteUser(user.email);
-            });
             });  
+                deleteUser(user._id);
+            });
             const editButton = document.createElement('button');
             editButton.textContent = 'Edit';
             editButton.addEventListener('click', function() {
                 editUser(user.email);
+                editUser(user._id);
             });
             listItem.appendChild(deleteButton);
             listItem.appendChild(editButton);
             parentElement.appendChild(listItem);
         }
-    function deleteUser(email) {
         function deleteUser(email) {
+        function deleteUser(userId) {
+            axios.delete(`https://crudcrud.com/api/727255c9705f493cb18ca23d90fbf838/appoinmentData/${userId}`)
+                .then((response) => {
+                    removeUserFromScreen(userId)
+                })
+                .catch((err) => {
+                    console.log(err)
+                })
             const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
             const updatedUsers = storedUsers.filter(user => user.email !== email);
+            const updatedUsers = storedUsers.filter(user => user._id !== userId);
             localStorage.setItem('users', JSON.stringify(updatedUsers));
             localStorage.removeItem(email);
             removeUserFromUI(email);
+            localStorage.removeItem(userId);
+            removeUserFromUI(userId);
         }
-    function removeUserFromUI(email) {
         function removeUserFromUI(email) {
             const listItem = document.querySelector(`li[data-email="${email}"]`);
+        function removeUserFromUI(userId) {
+            const listItem = document.querySelector(`li[data-email="${userId}"`);
             listItem.remove();
         }
-     function editUser(email) {
         function editUser(email) {
+        function editUser(userId) {
             isEditing = true;
             editEmail = email;
             const storedUser = JSON.parse(localStorage.getItem(email));
+            editEmail = _id;
+            const storedUser = JSON.parse(localStorage.getItem());
             if (storedUser) {
                 const form = document.querySelector('form');
                 form.username.value = storedUser.name;
                 form.emailId.value = storedUser.email;
+                form.emailId.value = storedUser._id;
                 form.phonenumber.value = storedUser.phonenumber;
-                }
-        }
             }
         } 
+        }
         // Load existing users from local storage and display them on the UI
         window.addEventListener('DOMContentLoaded', function() {
-            const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
-            storedUsers.forEach(function(user) {
-                showUserOnScreen(user);
             const data = axios.get("https://crudcrud.com/api/d7de33604f044e04bf3cb809448353d2/appoinmentData")
+            axios.get("https://crudcrud.com/api/727255c9705f493cb18ca23d90fbf838/appoinmentData")
                 .then((response) => {
                         //console.log(response)
+                        console.log(response)
                         for(var i=0; i< response.data.length; i++) {
                             showUserOnScreen(response.data[i])
                         }
@@ -148,6 +159,9 @@ Get the saved User Details from crudcrud.
              const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
              storedUsers.forEach(function(user) {
                  showUserOnScreen(user);
+            const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
+            storedUsers.forEach(function(user) {
+                showUserOnScreen(user);
             });
         });
     </script>
